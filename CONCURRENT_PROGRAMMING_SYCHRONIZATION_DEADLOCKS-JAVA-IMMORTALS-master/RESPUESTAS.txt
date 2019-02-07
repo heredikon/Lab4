@@ -1,0 +1,5 @@
+Part 1
+
+What is the reason of this CPU consumption?
+
+What is the class responsable of that consumption?
