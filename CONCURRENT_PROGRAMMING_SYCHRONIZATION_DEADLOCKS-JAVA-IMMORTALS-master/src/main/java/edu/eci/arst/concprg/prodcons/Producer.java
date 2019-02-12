@@ -30,22 +30,25 @@ public class Producer extends Thread {
 
     @Override
     public void run() {
-        while (true) {
-            
-            if (queue.size() < stockLimit){
-                try {
-                    this.wait();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            
+        while (true){
 
             dataSeed = dataSeed + rand.nextInt(100);
             if (queue.size() < stockLimit){
             System.out.println("Producer added " + dataSeed);
             queue.add(dataSeed);
             }
+            else {
+                System.out.println("+++++4444");
+                synchronized (queue){
+                    System.out.println("Production line full");
+                    try {
+                        queue.wait();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
 //            try {
 //                Thread.sleep(200);
 //            } catch (InterruptedException ex) {
@@ -53,5 +56,5 @@ public class Producer extends Thread {
 //            }
 
         }
-    }
+    
 }
