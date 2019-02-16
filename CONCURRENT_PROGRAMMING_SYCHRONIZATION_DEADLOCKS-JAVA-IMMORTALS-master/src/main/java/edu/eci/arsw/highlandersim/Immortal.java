@@ -50,61 +50,60 @@ public class Immortal extends Thread {
                     }
                 }
             }
+
+            Immortal im;
+
+            int myIndex = immortalsPopulation.indexOf(this);
+
+            int nextFighterIndex = r.nextInt(immortalsPopulation.size());
+
+            //avoid self-fight
+            if (nextFighterIndex == myIndex) {
+                nextFighterIndex = ((nextFighterIndex + 1) % immortalsPopulation.size());
+            }
+
+            im = immortalsPopulation.get(nextFighterIndex);
+
+            this.fight(im);
+
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-
-        Immortal im;
-
-        int myIndex = immortalsPopulation.indexOf(this);
-
-        int nextFighterIndex = r.nextInt(immortalsPopulation.size());
-
-        //avoid self-fight
-        if (nextFighterIndex == myIndex) {
-            nextFighterIndex = ((nextFighterIndex + 1) % immortalsPopulation.size());
-        }
-
-        im = immortalsPopulation.get(nextFighterIndex);
-
-        this.fight(im);
-
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
     }
 
     public void fight(Immortal i2) {
-		if (i2.getHealth() > 0) {
-			// Se intenta darle un orden a los bloqueos, para evitar el deadlock.
-			Immortal bloqueado1;
-			Immortal bloqueado2;
-			// Extraemos los índices de los inmortales que van a pelear.
-			int myIndex = immortalsPopulation.indexOf(this);
-			int hisIndex = immortalsPopulation.indexOf(i2);
-			if (myIndex < hisIndex) {// Si el índice de este inmortal es menor al del índice del inmortal con el que va a pelear, entonces este inmortal bloquea al otro.
-				bloqueado1 = this;
-				bloqueado2 = i2;
-			} else {
-				bloqueado1 = i2;
-				bloqueado2 = this;
-			}
-			synchronized (bloqueado1) {
-				synchronized (bloqueado2) {
-					// Esta es nuestra región crítica, pues se hace el proceso de agregar y quitar vida al mismo tiempo.
-					i2.changeHealth(i2.getHealth() - defaultDamageValue);
-					this.health += defaultDamageValue;
-				}
-			}
-			updateCallback.processReport("Fight: " + this + " vs " + i2 + "\n");
-		} else {
-			if (i2.getSums() < 1) {
-				updateCallback.processReport(this + " says:" + i2 + " is already dead!\n");
-			}
-			i2.setSums(i2.getSums()+1);
-		}
-	}
+        if (i2.getHealth() > 0) {
+            // Se intenta darle un orden a los bloqueos, para evitar el deadlock.
+            Immortal bloqueado1;
+            Immortal bloqueado2;
+            // Extraemos los índices de los inmortales que van a pelear.
+            int myIndex = immortalsPopulation.indexOf(this);
+            int hisIndex = immortalsPopulation.indexOf(i2);
+            if (myIndex < hisIndex) {// Si el índice de este inmortal es menor al del índice del inmortal con el que va a pelear, entonces este inmortal bloquea al otro.
+                bloqueado1 = this;
+                bloqueado2 = i2;
+            } else {
+                bloqueado1 = i2;
+                bloqueado2 = this;
+            }
+            synchronized (bloqueado1) {
+                synchronized (bloqueado2) {
+                    // Esta es nuestra región crítica, pues se hace el proceso de agregar y quitar vida al mismo tiempo.
+                    i2.changeHealth(i2.getHealth() - defaultDamageValue);
+                    this.health += defaultDamageValue;
+                }
+            }
+            updateCallback.processReport("Fight: " + this + " vs " + i2 + "\n");
+        } else {
+            if (i2.getSums() < 1) {
+                updateCallback.processReport(this + " says:" + i2 + " is already dead!\n");
+            }
+            i2.setSums(i2.getSums() + 1);
+        }
+    }
 
     public void changeHealth(int v) {
         health = v;
@@ -118,6 +117,13 @@ public class Immortal extends Thread {
     public String toString() {
 
         return name + "[" + health + "]";
+    }
+
+    public void resumeFight() {
+        pause = false;
+        synchronized (this) {
+            this.notifyAll();
+        }
     }
 
     public ImmortalUpdateReportCallback getUpdateCallback() {
@@ -159,6 +165,5 @@ public class Immortal extends Thread {
     public void setSums(int sums) {
         this.sums = sums;
     }
-    
 
 }

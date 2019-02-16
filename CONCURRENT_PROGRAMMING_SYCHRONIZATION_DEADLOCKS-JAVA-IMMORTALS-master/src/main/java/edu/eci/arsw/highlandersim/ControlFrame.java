@@ -91,6 +91,9 @@ public class ControlFrame extends JFrame {
                 /*
 				 * COMPLETAR
                  */
+                for (int i=0;i<immortals.size();i++){
+                    immortals.get(i).setPause(true);
+                }
                 int sum = 0;
                 for (Immortal im : immortals) {
                     sum += im.getHealth();
@@ -111,6 +114,9 @@ public class ControlFrame extends JFrame {
                 /**
                  * IMPLEMENTAR
                  */
+                for (int i=0;i<immortals.size();i++){
+                    immortals.get(i).resumeFight();
+                }
 
             }
         });
@@ -121,12 +127,25 @@ public class ControlFrame extends JFrame {
         toolBar.add(lblNumOfImmortals);
 
         numOfImmortals = new JTextField();
-        numOfImmortals.setText("3");
+        numOfImmortals.setText("10");
         toolBar.add(numOfImmortals);
         numOfImmortals.setColumns(10);
 
         JButton btnStop = new JButton("STOP");
         btnStop.setForeground(Color.RED);
+        btnStop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                int total = 0;
+                for (int i=0;i<immortals.size();i++){
+                    total+=immortals.get(i).getHealth();
+                    immortals.get(i).setStop(true);
+                }
+                btnPauseAndCheck.setEnabled(false);
+                btnResume.setEnabled(false);
+                numOfImmortals.setEditable(false);
+                    
+            }
+        });
         toolBar.add(btnStop);
 
         scrollPane = new JScrollPane();
